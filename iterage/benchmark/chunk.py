@@ -21,7 +21,6 @@
 # SOFTWARE.
 
 import itertools
-import timeit
 
 import iterage.benchmark as bench
 
@@ -41,13 +40,54 @@ def baseline(iterable, n):
       yield a
 
 def chunk_v1(iterable, n):
+  islice = itertools.islice
+  ltuple = tuple
+  llen = len
+
   iterator = iter(iterable)
   while True:
-    a = list(itertools.islice(iterator, n))
-    if len(a) == n:
+    a = ltuple(islice(iterator, n))
+    if llen(a) == n:
       yield a
     else:
-      if len(a) > 0:
+      if llen(a) > 0:
+        yield a
+      return
+
+def chunk_v2(iterable, n):
+  islice = itertools.islice
+  ltuple = tuple
+  
+  it = iter(iterable)
+  item = ltuple(islice(it, n))
+  while item:
+      yield item
+      item = ltuple(islice(it, n))
+
+def chunk_v3(iterable, n):
+    it = iter(iterable)
+    ltuple = tuple
+    islice = itertools.islice
+    return iter(lambda: ltuple(islice(it, n)), ())
+
+def chunk_v4(iterable, n):
+    iterable = iter(iterable)
+    ltuple = tuple
+    islice = itertools.islice
+    while True:
+        yield ltuple(islice(iterable, n)) or iterable.next()
+
+def chunk_v5(iterable, n):
+  iterator = iter(iterable)
+  ltuple = tuple
+  llen = len
+  islice = itertools.islice
+  while True:
+    a = ltuple(islice(iterator, n))
+    if llen(a) == n:
+      yield a
+    else:
+      if llen(a) > 0:
         yield a
       return
 
@@ -61,47 +101,63 @@ class ChunkBenchmark(bench.BenchmarkBase):
 
     def __init__(self):
       self.__base().__init__()
-      self.register('baseline', self.baseline)
-      self.register('iterage', self.testiterage)
-      self.register('iterage v1', self.chunk_v1)
-      self.register('chunk_filled', self.chunk_filled)
-      self.register('chunk_trunc', self.chunk_trunc)
 
-    def baseline(self, args):
-      return timeit.Timer(\
-        setup='import iterage.benchmark.chunk',
-        stmt='list(iterage.benchmark.chunk.baseline({iterable}, {n}))'.format(**args))
+      self.registerTests([
+        ('baseline', (
+            'import iterage.benchmark.chunk',
+            'list(iterage.benchmark.chunk.baseline({iterable}, {n}))'
+          )),
 
-    def testiterage(self, args):
-      return timeit.Timer(
-        setup='import iterage',
-        stmt='list(iterage.chunk({iterable}, {n}))'.format(**args))
+          ('iterage', (
+            'import iterage',
+            'list(iterage.chunk({iterable}, {n}))'
+          )),
 
-    def chunk_v1(self, args):
-      return timeit.Timer(\
-        setup='import iterage.benchmark.chunk',
-        stmt='list(iterage.benchmark.chunk.chunk_v1({iterable}, {n}))'.format(**args))
+          ('iterage v1', (
+            'import iterage.benchmark.chunk',
+            'list(iterage.benchmark.chunk.chunk_v1({iterable}, {n}))'
+          )),
 
-    def chunk_filled(self, args):
-      return timeit.Timer(
-        setup='import iterage',
-        stmt='list(iterage.chunk_filled({iterable}, {n}))'.format(**args))
+          ('iterage v2', (
+            'import iterage.benchmark.chunk',
+            'list(iterage.benchmark.chunk.chunk_v2({iterable}, {n}))'
+          )),
 
-    def chunk_trunc(self, args):
-      return timeit.Timer(
-        setup='import iterage',
-        stmt='list(iterage.chunk_trunc({iterable}, {n}))'.format(**args))
+          ('iterage v3', (
+            'import iterage.benchmark.chunk',
+            'list(iterage.benchmark.chunk.chunk_v3({iterable}, {n}))'
+          )),
+
+          ('iterage v4', (
+            'import iterage.benchmark.chunk',
+            'list(iterage.benchmark.chunk.chunk_v4({iterable}, {n}))'
+          )),
+                          
+          ('iterage v5', (
+            'import iterage.benchmark.chunk',
+            'list(iterage.benchmark.chunk.chunk_v5({iterable}, {n}))'
+          )),                          
+#
+#           ('chunk_filled', (
+#             'import iterage',
+#             'list(iterage.chunk_filled({iterable}, {n}))'
+#           )),
+#
+#           ('chunk_trunc', (
+#             'import iterage',
+#             'list(iterage.chunk_trunc({iterable}, {n}))'
+#           )),
+      ])
 
     def run(self):
-      self.__base().run(args={'iterable': 'xrange(1, 8)', 'n': 4}, number=100000); self.pnt(); print('')
-      self.__base().run(args={'iterable': 'xrange(1, 64)', 'n': 4}, number=10000); self.pnt(); print('')
-      self.__base().run(args={'iterable': 'xrange(1, 512)', 'n': 4}, number=1000); self.pnt(); print('')
-      self.__base().run(args={'iterable': 'xrange(1, 4096)', 'n': 4}, number=100); self.pnt(); print('')
+      self._run(args={'iterable': '(str(x) for x in xrange(1, 8))', 'n': 4}, number=10000);
+      self._run(args={'iterable': '(str(x) for x in xrange(1, 64))', 'n': 4}, number=1000);
+      self._run(args={'iterable': '(str(x) for x in xrange(1, 128))', 'n': 4}, number=100);
 
-      self.__base().run(args={'iterable': 'xrange(1, 8)', 'n': 8}, number=100000); self.pnt(); print('')
-      self.__base().run(args={'iterable': 'xrange(1, 64)', 'n': 8}, number=10000); self.pnt(); print('')
-      self.__base().run(args={'iterable': 'xrange(1, 512)', 'n': 8}, number=1000); self.pnt(); print('')
-      self.__base().run(args={'iterable': 'xrange(1, 4096)', 'n': 8}, number=100); self.pnt(); print('')
+      self._run(args={'iterable': 'xrange(1, 7)', 'n': 8}, number=100000);
+      self._run(args={'iterable': 'xrange(1, 63)', 'n': 8}, number=10000);
+      self._run(args={'iterable': 'xrange(1, 511)', 'n': 8}, number=1000);
+      self._run(args={'iterable': 'xrange(1, 4095)', 'n': 8}, number=100);
 
 
 if __name__ == "__main__":

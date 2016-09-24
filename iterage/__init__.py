@@ -88,13 +88,11 @@ def unique_v2(iterable, key=None):
 
 def ifilter(iterable, pred=bool):
   """
-  @todo: x for x in iterable if pred(x) faster?
   """
   return itertools.ifilter(pred, iterable)
 
 def ifilter_not(iterable, pred=bool):
   """
-  @todo: x for x in iterable if not pred(x) faster?
   """
   return itertools.ifilterfalse(pred, iterable)
 
@@ -117,15 +115,14 @@ def imap(func, *iterables):
   return itertools.imap(func, iterables)
 
 def chunk(iterable, n):
-  iterator = iter(iterable)
-  while True:
-    a = tuple(itertools.islice(iterator, n))
-    if len(a) == n:
-      yield a
-    else:
-      if len(a) > 0:
-        yield a
-      return
+  islice = itertools.islice
+  ltuple = tuple
+
+  it = iter(iterable)
+  item = ltuple(islice(it, n))
+  while item:
+    yield item
+    item = ltuple(islice(it, n))
 
 def chunk_filled(iterable, n, fillvalue=None):
   args = [iter(iterable)] * n

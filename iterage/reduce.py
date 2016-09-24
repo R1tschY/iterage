@@ -20,7 +20,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+from collections import deque
 import itertools
+
+# a sentinal - do not use as value in iterable
+SENTINEL = object()
 
 # Executors
 # - go through a iterable
@@ -28,19 +32,27 @@ import itertools
 # TODO:
 # - for_each/foreach(iterable, func)
 # - consume - run only through iterable
-
 # Reduce
 
-def count(iterable):
-  return len(iterable)
+def icount(iterable):
+  """
+  copyied from zuo: http://stackoverflow.com/a/15112059/1188453
+  """
+  if hasattr(iterable, '__len__'):
+    return len(iterable)
 
-def count_if(iterable, pred=bool):
+  counter = itertools.count()
+  deque(itertools.izip(iterable, itertools.count()), maxlen=0)
+  return next(counter)
+
+def icount_if(iterable, pred=bool):
   """
   Count how many times the predicate is true.
 
-      count_if(xrange(10), lambda x: x < 5) -> 5
+      count_if(x < 5 for x in xrange(10))   # -> 5
+      count_if(xrange(10), lambda x: x < 5) # -> 5
   """
-  return sum(itertools.imap(pred, iterable))
+  return icount(itertools.ifilter(pred, iterable))
 
 def all_equal(iterable):
   """
@@ -62,67 +74,54 @@ def find_first_not(iterable, pred=bool, default=None):
   """
   return next(itertools.ifilterfalse(pred, iterable), default)
 
-def is_empty(iterable):
+def iempty(iterable):
   """
   Returns True if iterable contains no elements
   @todo: test performance: https://stackoverflow.com/questions/661603/how-do-i-know-if-a-generator-is-empty-from-the-start
   """
-  try:
-    next(iterable)
-    return False
-  except StopIteration:
-    return True
+  _SENTINEL = SENTINEL
+  return next(iter(iterable), _SENTINEL) is _SENTINEL
 
-def iall(iterable, pred=bool):
+def iall(iterable):
   """
   Returns True if all values are True
   """
-  if pred == bool:
-    return all(iterable)
-  else:
-    return all(itertools.imap(pred, iterable))
+  return all(iterable)
 
-def iany(iterable, pred=bool):
+def iany(iterable):
   """
   Returns True if all values are True
   """
-  if pred == bool:
-    return any(iterable)
-  else:
-    return any(itertools.imap(pred, iterable))
-
+  return any(iterable)
 
 def inone(iterable, pred=bool):
   """
   Returns True if all values are True
   """
-  if pred == bool:
-    return not any(iterable)
-  else:
-    return not any(itertools.imap(pred, iterable))
+  return not any(iterable)
 
 def first(iterable, default=None):
   "Returns the first item or a default value"
-  return next(iterable, default)
+  return next(iter(iterable), default)
 
 def single(iterable, default=None):
   """
   Returns the first item or a default value
   @bug: raise exception if there are more than one element
   """
-  return next(iterable, default)
+  return next(iter(iterable), default)
 
-def max_element(iterable, key=bool):
+def max_element(iterable, key=None):
   """
   Returns the largest item in the iterable.
-  @note: equivalent to: max(iterable, key)
+  @note: equivalent to: max(iterable[, key])
   """
   return max(iterable, key)
 
-def min_element(iterable, key=bool):
+def min_element(iterable, key=None):
   """
   Returns the smallest item in the iterable.
-  @note: equivalent to: min(iterable, key)
+  @note: equivalent to: min(iterable[, key])
   """
   return min(iterable, key)
 

@@ -21,7 +21,7 @@
 # SOFTWARE.
 
 import math
-from tabulate import tabulate
+# from tabulate import tabulate
 import timeit
 
 
@@ -32,6 +32,13 @@ def humanize(x):
   unit = si_scaler[exp3 + 4]
   return '{:5.2f}{}'.format(quotient, unit)
 
+class TestFactory(object):
+  def __init__(self, setup, stmt):
+    self.setup = setup
+    self.stmt = stmt
+
+  def __call__(self, args):
+    return timeit.Timer(setup=self.setup, stmt=self.stmt.format(**args))
 
 class BenchmarkBase(object):
 
@@ -40,8 +47,12 @@ class BenchmarkBase(object):
     self.results = []
     self.headers = ["Name", "Executions", "Time / Execution"]
 
-  def register(self, name, factory, setup='pass'):
+  def register(self, name, factory):
     self.funcs.append((name, factory))
+
+  def registerTests(self, tests):
+    for k, v in tests:
+      self.register(k, TestFactory(v[0], v[1]))
 
   def run(self, args=None, number=1000000, repeat=3):
     self.results = []
@@ -51,6 +62,19 @@ class BenchmarkBase(object):
         time = min(func.repeat(repeat=repeat, number=number))
         self.results.append((name, number, humanize(time / number) + 's'))
 
-  def pnt(self):
-    print tabulate(self.results, headers=self.headers)
+  def _run(self, args=None, number=1000000, repeat=3):
+    self.results = []
+    for (name, factory) in self.funcs:
+      func = factory(args)
+      if func:
+        time = min(func.repeat(repeat=repeat, number=number))
+        self.results.append((name, number, humanize(time / number) + 's'))
 
+    print("\n".join(map(str, self.results)))
+    # print(tabulate(self.results, headers=self.headers))
+    print('')
+
+  def pnt(self):
+    print("\n".join(self.results))
+    # print(tabulate(self.results, headers=self.headers))
+    print('')
