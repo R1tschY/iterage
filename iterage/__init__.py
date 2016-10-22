@@ -55,7 +55,7 @@ def cycle(iterable):
       list(take(cycle(xrange(1)), 5) == [0, 1, 0, 1, 0]
 
   @note: function is saving content of iterable in the first run and returns in
-    secound cycle the elements of the copy. So it uses significant auxiliary
+    second cycle the elements of the copy. So it uses significant auxiliary
     storage (depending on the length of the iterable).
 
   @see itertools.cycle
