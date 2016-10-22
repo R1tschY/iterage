@@ -23,8 +23,26 @@
 import collections
 import itertools
 import operator
+import sys
 
 import iterage.generate
+
+
+if (sys.version_info >= (3, 0)):
+  # Python 3
+  irange = range
+  imap = map
+  ifilter = filter
+  ifilterfalse = itertools.filterfalse
+  izip = zip
+else:
+  # Python 2.7
+  irange = xrange
+  imap = itertools.imap
+  ifilter = itertools.ifilter
+  ifilterfalse = itertools.ifilterfalse
+  izip = itertools.izip
+
 
 
 # Adaptors
@@ -71,30 +89,30 @@ def irepeat(iterable, n=1):
   @todo: use more itertools for more speed
   """
   for i in iterable:
-    for _ in xrange(n):
+    for _ in irange(n):
       yield i
 
 def unique(iterable, key=None):
   """
   List unique elements, preserving order. Remember only the element just seen.
   """
-  return itertools.imap(next, itertools.imap(operator.itemgetter(1), itertools.groupby(iterable, key)))
+  return imap(next, imap(operator.itemgetter(1), itertools.groupby(iterable, key)))
 
 def unique_v2(iterable, key=None):
   """
   List unique elements, preserving order. Remember only the element just seen.
   """
-  return itertools.imap(operator.itemgetter(0), itertools.groupby(iterable, key))
+  return imap(operator.itemgetter(0), itertools.groupby(iterable, key))
 
 def ifilter(iterable, pred=bool):
   """
   """
-  return itertools.ifilter(pred, iterable)
+  return ifilter(pred, iterable)
 
 def ifilter_not(iterable, pred=bool):
   """
   """
-  return itertools.ifilterfalse(pred, iterable)
+  return ifilterfalse(pred, iterable)
 
 def visit(iterable, func):
   for e in iterable:
@@ -109,10 +127,7 @@ def visit(iterable, func):
 #   return itertools.imap(__visitor, iterable)
 
 def transform(iterable, func):
-  return itertools.imap(func, iterable)
-
-def imap(func, *iterables):
-  return itertools.imap(func, iterables)
+  return imap(func, iterable)
 
 def chunk(iterable, n):
   islice = itertools.islice
@@ -130,4 +145,4 @@ def chunk_filled(iterable, n, fillvalue=None):
 
 def chunk_trunc(iterable, n, fillval=None):
   args = [iter(iterable)] * n
-  return itertools.izip(*args)
+  return izip(*args)
