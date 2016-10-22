@@ -27,16 +27,54 @@ import unittest
 import iterage
 
 
+def createNGenerator(n):
+  return (x for x in xrange(n))
+
+emptyGenerator = createNGenerator(0)
+
+class IterageDropTests(unittest.TestCase):
+
+  def test_simpleUseCases(self):
+    for i in xrange(6):
+      exp = [] if i < 3 else range(3, i)
+      self.assertEqual(list(iterage.drop(xrange(i), 3)), exp)
+      self.assertEqual(list(iterage.drop(list(xrange(i)), 3)), exp)
+      self.assertEqual(list(iterage.drop(createNGenerator(i), 3)), exp)
+
+  def test_emptyRange(self):
+    self.assertEqual(list(iterage.drop(range(6), 0)), range(6))
+    self.assertEqual(list(iterage.drop([], 3)), [])
+    self.assertEqual(list(iterage.drop([], 0)), [])
+
 class IterageTakeTests(unittest.TestCase):
 
   def test_simpleUseCases(self):
-    self.assertEqual(list(iterage.take(range(6), 3)), [0, 1, 2])
+    for i in xrange(6):
+      exp = range(i) if i < 3 else range(3)
+      self.assertEqual(list(iterage.take(xrange(i), 3)), exp)
+      self.assertEqual(list(iterage.take(list(xrange(i)), 3)), exp)
+      self.assertEqual(list(iterage.take(createNGenerator(i), 3)), exp)
 
   def test_emptyRange(self):
-    self.assertEqual(list(iterage.take(range(0), 3)), [])
+    self.assertEqual(list(iterage.take(range(0), 0)), [])
+    self.assertEqual(list(iterage.take([], 0)), [])
+    self.assertEqual(list(iterage.take(emptyGenerator, 0)), [])
 
-  def test_smallRange(self):
-    self.assertEqual(list(iterage.take(range(2), 3)), [0, 1])
+    self.assertEqual(list(iterage.take(range(0), 3)), [])
+    self.assertEqual(list(iterage.take([], 3)), [])
+    self.assertEqual(list(iterage.take(emptyGenerator, 3)), [])
+
+    self.assertEqual(list(iterage.take(range(3), 0)), [])
+    self.assertEqual(list(iterage.take([0, 1, 2], 0)), [])
+    self.assertEqual(list(iterage.take(createNGenerator(3), 0)), [])
+
+class IterageCycleTests(unittest.TestCase):
+
+  def test_simpleUseCases(self):
+    self.assertEqual(list(iterage.take(iterage.cycle(xrange(2)), 6)), [0, 1, 0, 1, 0, 1])
+    self.assertEqual(list(iterage.take(iterage.cycle([0, 1]), 6)), [0, 1, 0, 1, 0, 1])
+    self.assertEqual(list(iterage.take(iterage.cycle(createNGenerator(2)), 6)), [0, 1, 0, 1, 0, 1])
+
 
 class IterageChunkTests(unittest.TestCase):
 
