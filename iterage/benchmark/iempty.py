@@ -28,7 +28,7 @@ import iterage.reduce
 SENTINEL = object()
 
 def baseline(iterable):
-  return iterage.reduce.icount(iterable) > 0
+  return iterage.reduce.ilen(iterable) > 0
 
 def v1(iterable):
   try:

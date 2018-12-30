@@ -38,10 +38,10 @@ def icount_if_v1(iterable):
 
 def icount_if_v2(iterable):
   lbool = bool
-  return iterage.reduce.icount(x for x in iterable if lbool(x))
+  return iterage.reduce.ilen(x for x in iterable if lbool(x))
 
 def icount_if_v3(iterable):
-  return iterage.reduce.icount(itertools.ifilter(bool, iterable))
+  return iterage.reduce.ilen(itertools.ifilter(bool, iterable))
 
 def icount_if_v4(iterable, sum=sum):
   return sum(1 for x in iterable if x)

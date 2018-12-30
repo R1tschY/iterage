@@ -26,6 +26,7 @@ from collections import deque
 import itertools
 
 import iterage
+from .compat import *
 
 
 # a sentinal - do not use as value in any iterable
@@ -60,14 +61,14 @@ def consume(iterator, n=None):
 
 
 def foreach(function, *iterables):
-  consume(iterage.imap(function, *iterables))
+  consume(map(function, *iterables))
 
 
-def icount(iterable):
+def ilen(iterable):
   """
   copyied from zuo: http://stackoverflow.com/a/15112059/1188453
 
-  >>> icount([1, 2, 3])
+  >>> ilen([1, 2, 3])
   3
 
   """
@@ -75,7 +76,7 @@ def icount(iterable):
     return len(iterable)
 
   counter = itertools.count()
-  deque(iterage.izip(iterable, counter), maxlen=0)
+  deque(zip(iterable, counter), maxlen=0)
   return next(counter)
 
 
@@ -89,7 +90,7 @@ def icount_if(iterable, pred=bool):
   5
 
   """
-  return icount(iterage.ifilter(pred, iterable))
+  return ilen(filter(pred, iterable))
 
 
 def all_equal(iterable):
@@ -115,7 +116,7 @@ def find_first(iterable, pred=bool, default=None):
   -1
 
   """
-  return next(iterage.ifilter(pred, iterable), default)
+  return next(filter(pred, iterable), default)
 
 
 def find_first_not(iterable, pred=bool, default=None):
@@ -128,7 +129,7 @@ def find_first_not(iterable, pred=bool, default=None):
   -1
 
   """
-  return next(iterage.ifilterfalse(pred, iterable), default)
+  return next(filterfalse(pred, iterable), default)
 
 
 def is_empty(iterable):
@@ -146,33 +147,11 @@ def is_empty(iterable):
   return next(iter(iterable), _SENTINEL) is _SENTINEL
 
 
-def iall(iterable):
+def none(iterable):
   """
   Returns True if all values are True
 
-  >>> iall([True, 1, 42])
-  True
-
-  """
-  return all(iterable)
-
-
-def iany(iterable):
-  """
-  Returns True if all values are True
-
-  >>> iany([True, 0, False])
-  True
-
-  """
-  return any(iterable)
-
-
-def inone(iterable):
-  """
-  Returns True if all values are True
-
-  >>> inone([False, 0, [], None, ""])
+  >>> none([False, 0, [], None, ""])
   True
 
   """
@@ -217,19 +196,3 @@ def single(iterable):
     pass
 
   raise ValueError()
-
-
-def imax(iterable, key):
-  """
-  Returns the largest item in the iterable.
-  @note: equivalent to: max(iterable[, key])
-  """
-imax = max
-
-
-def imin(iterable, key):
-  """
-  Returns the smallest item in the iterable.
-  @note: equivalent to: min(iterable[, key])
-  """
-imin = min
