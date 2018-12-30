@@ -20,11 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+__version__ = "0.1.dev"
+
 import itertools
 import operator
 import sys
 
-if (sys.version_info >= (3, 0)):
+if sys.version_info >= (3, 0):
     # Python 3
     irange = range
     imap = map
