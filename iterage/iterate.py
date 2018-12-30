@@ -2,7 +2,6 @@
 
 import itertools
 import operator
-from .compat import *
 
 # Adaptors
 # - adapt a iterable
@@ -117,7 +116,7 @@ def chunk_filled(iterable, n, fillvalue=None):
 
     """
     args = [iter(iterable)] * n
-    return zip_longest(fillvalue=fillvalue, *args)
+    return itertools.zip_longest(fillvalue=fillvalue, *args)
 
 
 def chunk_trunc(iterable, n):

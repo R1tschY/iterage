@@ -25,7 +25,7 @@
 from collections import deque
 import itertools
 
-import iterage.benchmark as bench
+import benchmarks as bench
 
 def baseline(iterable):
   return sum(1 for __ in iterable)
@@ -35,7 +35,7 @@ def icount_v1(iterable):
   copyied from zuo: http://stackoverflow.com/a/15112059/1188453
   """
   counter = itertools.count()
-  deque(itertools.izip(iterable, itertools.count()), maxlen=0)
+  deque(zip(iterable, itertools.count()), maxlen=0)
   return next(counter)
 
 def icount_v2(iterable):
@@ -79,18 +79,18 @@ class ICountBenchmark(bench.BenchmarkBase):
 
     self.registerTests([
       ("baseline", (
-        'import iterage.benchmark.icount',
-        'iterage.benchmark.icount.baseline({iterable})'
+        'import iterage.benchmarks.icount',
+        'iterage.benchmarks.icount.baseline({iterable})'
       )),
 
       ("v1", (
-        'import iterage.benchmark.icount',
-        'iterage.benchmark.icount.icount_v1({iterable})'
+        'import iterage.benchmarks.icount',
+        'iterage.benchmarks.icount.icount_v1({iterable})'
       )),
 
       ("cardinality", (
-        'import iterage.benchmark.icount',
-        'iterage.benchmark.icount.icount_v2({iterable})'
+        'import iterage.benchmarks.icount',
+        'iterage.benchmarks.icount.icount_v2({iterable})'
       )),
     ])
 

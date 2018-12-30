@@ -22,8 +22,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from .compat import *
-
 def chunk(l, n):
   for i in range(0, len(l), n):
     yield l[i:i + n]

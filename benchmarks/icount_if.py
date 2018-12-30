@@ -22,60 +22,55 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import iterage.benchmark as bench
+import benchmarks as bench
 import iterage.reduce
 
-SENTINEL = object()
 
 def baseline(iterable):
-  return iterage.reduce.ilen(iterable) > 0
+  lbool = bool
+  return sum(lbool(x) for x in iterable)
 
-def v1(iterable):
-  try:
-    next(iter(iterable))
-    return False
-  except StopIteration:
-    return True
+def icount_if_v1(iterable):
+  return sum(map(bool, iterable))
 
-def v2(iterable):
-  return next(iter(iterable), SENTINEL) is SENTINEL
+def icount_if_v2(iterable):
+  lbool = bool
+  return iterage.reduce.ilen(x for x in iterable if lbool(x))
 
-def v3(iterable):
-  _SENTINEL = object()
-  return next(iter(iterable), _SENTINEL) is _SENTINEL
+def icount_if_v3(iterable):
+  return iterage.reduce.ilen(filter(bool, iterable))
 
-def v4(iterable):
-  _SENTINEL = SENTINEL
-  return next(iter(iterable), _SENTINEL) is _SENTINEL
+def icount_if_v4(iterable, sum=sum):
+  return sum(1 for x in iterable if x)
 
-class ICountIfBenchmark(bench.BenchmarkBase):
+class IEmptyBenchmark(bench.BenchmarkBase):
   def __init__(self):
-    super(ICountIfBenchmark, self).__init__()
+    super(IEmptyBenchmark, self).__init__()
 
     self.registerTests([
       ("baseline", (
-        'import iterage.benchmark.iempty',
-        'iterage.benchmark.iempty.baseline({iterable})'
+        'import iterage.benchmarks.icount_if',
+        'iterage.benchmarks.icount_if.baseline({iterable})'
       )),
 
       ("v1", (
-        'import iterage.benchmark.iempty',
-        'iterage.benchmark.iempty.v1({iterable})'
+        'import iterage.benchmarks.icount_if',
+        'iterage.benchmarks.icount_if.icount_if_v1({iterable})'
       )),
 
       ("v2", (
-        'import iterage.benchmark.iempty',
-        'iterage.benchmark.iempty.v2({iterable})'
+        'import iterage.benchmarks.icount_if',
+        'iterage.benchmarks.icount_if.icount_if_v2({iterable})'
       )),
 
-                            ("v3", (
-        'import iterage.benchmark.iempty',
-        'iterage.benchmark.iempty.v3({iterable})'
+      ("v3", (
+        'import iterage.benchmarks.icount_if',
+        'iterage.benchmarks.icount_if.icount_if_v3({iterable})'
       )),
 
-                              ("v4", (
-        'import iterage.benchmark.iempty',
-        'iterage.benchmark.iempty.v4({iterable})'
+      ("v4", (
+        'import iterage.benchmarks.icount_if',
+        'iterage.benchmarks.icount_if.icount_if_v4({iterable})'
       )),
     ])
 
@@ -85,12 +80,12 @@ class ICountIfBenchmark(bench.BenchmarkBase):
     self._run(args={'iterable': '(x > 4 for x in xrange(8))'}, number=100000)
     self._run(args={'iterable': '(x > 32 for x in xrange(64))'}, number=10000)
     self._run(args={'iterable': '(x > 100 for x in xrange(64))'}, number=10000)
-    self._run(args={'iterable': 'xrange(0)'}, number=10000)
-    self._run(args={'iterable': 'xrange(5)'}, number=10000)
-    self._run(args={'iterable': '[]'}, number=10000)
-    self._run(args={'iterable': '[1,2,3,4]'}, number=10000)
+    self._run(args={'iterable': '(x % 2 for x in xrange(8))'}, number=10000)
+    self._run(args={'iterable': '(x % 2 for x in xrange(64))'}, number=10000)
+    self._run(args={'iterable': '(x % 2 for x in xrange(128))'}, number=1000)
+    self._run(args={'iterable': '(x % 2 for x in xrange(1024))'}, number=100)
 
 
 if __name__ == "__main__":
-  benchmark = ICountIfBenchmark()
+  benchmark = IEmptyBenchmark()
   benchmark.run()

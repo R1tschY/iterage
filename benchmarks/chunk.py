@@ -24,7 +24,7 @@
 
 import itertools
 
-import iterage.benchmark as bench
+import benchmarks as bench
 
 
 def baseline(iterable, n):
@@ -33,7 +33,7 @@ def baseline(iterable, n):
     iterators = iter(iterable)
     while True:
       a = []
-      for _ in xrange(n):
+      for _ in range(n):
         a.append(next(iterators))
       yield a
 
@@ -77,7 +77,7 @@ def chunk_v4(iterable, n):
     ltuple = tuple
     islice = itertools.islice
     while True:
-        yield ltuple(islice(iterable, n)) or iterable.next()
+        yield ltuple(islice(iterable, n)) or next(iterable)
 
 def chunk_v5(iterable, n):
   iterator = iter(iterable)
@@ -95,7 +95,7 @@ def chunk_v5(iterable, n):
 
 def grouper(iterable, n):
   args = [iter(iterable)] * n
-  return itertools.izip(*args)
+  return zip(*args)
 
 class ChunkBenchmark(bench.BenchmarkBase):
     def __base(self):
@@ -106,8 +106,8 @@ class ChunkBenchmark(bench.BenchmarkBase):
 
       self.registerTests([
         ('baseline', (
-            'import iterage.benchmark.chunk',
-            'list(iterage.benchmark.chunk.baseline({iterable}, {n}))'
+            'import iterage.benchmarks.chunk',
+            'list(iterage.benchmarks.chunk.baseline({iterable}, {n}))'
           )),
 
           ('iterage', (
@@ -116,28 +116,28 @@ class ChunkBenchmark(bench.BenchmarkBase):
           )),
 
           ('iterage v1', (
-            'import iterage.benchmark.chunk',
-            'list(iterage.benchmark.chunk.chunk_v1({iterable}, {n}))'
+            'import iterage.benchmarks.chunk',
+            'list(iterage.benchmarks.chunk.chunk_v1({iterable}, {n}))'
           )),
 
           ('iterage v2', (
-            'import iterage.benchmark.chunk',
-            'list(iterage.benchmark.chunk.chunk_v2({iterable}, {n}))'
+            'import iterage.benchmarks.chunk',
+            'list(iterage.benchmarks.chunk.chunk_v2({iterable}, {n}))'
           )),
 
           ('iterage v3', (
-            'import iterage.benchmark.chunk',
-            'list(iterage.benchmark.chunk.chunk_v3({iterable}, {n}))'
+            'import iterage.benchmarks.chunk',
+            'list(iterage.benchmarks.chunk.chunk_v3({iterable}, {n}))'
           )),
 
           ('iterage v4', (
-            'import iterage.benchmark.chunk',
-            'list(iterage.benchmark.chunk.chunk_v4({iterable}, {n}))'
+            'import iterage.benchmarks.chunk',
+            'list(iterage.benchmarks.chunk.chunk_v4({iterable}, {n}))'
           )),
                           
           ('iterage v5', (
-            'import iterage.benchmark.chunk',
-            'list(iterage.benchmark.chunk.chunk_v5({iterable}, {n}))'
+            'import iterage.benchmarks.chunk',
+            'list(iterage.benchmarks.chunk.chunk_v5({iterable}, {n}))'
           )),                          
 #
 #           ('chunk_filled', (

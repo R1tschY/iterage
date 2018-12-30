@@ -22,13 +22,9 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import itertools
-import timeit
 import unittest
 
 import iterage
-from .compat import *
-
 
 def createNGenerator(n):
   return (x for x in range(n))

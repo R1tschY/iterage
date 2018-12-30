@@ -26,7 +26,6 @@ from collections import deque
 import itertools
 
 import iterage
-from .compat import *
 
 
 # a sentinal - do not use as value in any iterable
@@ -129,7 +128,7 @@ def find_first_not(iterable, pred=bool, default=None):
   -1
 
   """
-  return next(filterfalse(pred, iterable), default)
+  return next(itertools.filterfalse(pred, iterable), default)
 
 
 def is_empty(iterable):

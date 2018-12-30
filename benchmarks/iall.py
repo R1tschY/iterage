@@ -25,7 +25,7 @@
 import itertools
 import timeit
 
-import iterage.benchmark as bench
+import benchmarks as bench
 import iterage.reduce
 
 
@@ -48,7 +48,7 @@ def iall_v2(iterable, pred=bool):
   if pred == bool:
     return all(iterable)
   else:
-    return iterage.reduce.is_empty(itertools.ifilterfalse(pred, iterable))
+    return iterage.reduce.is_empty(itertools.filterfalse(pred, iterable))
 
 class IAllBenchmark(bench.BenchmarkBase):
     def __base(self):
@@ -63,8 +63,8 @@ class IAllBenchmark(bench.BenchmarkBase):
 
     def baseline(self, args):
       return timeit.Timer(\
-        setup='import iterage.benchmark.iall',
-        stmt='iterage.benchmark.iall.baseline({iterable}, pred={pred})'.format(**args))
+        setup='import iterage.benchmarks.iall',
+        stmt='iterage.benchmarks.iall.baseline({iterable}, pred={pred})'.format(**args))
 
     def testiterage(self, args):
       return timeit.Timer(
@@ -73,13 +73,13 @@ class IAllBenchmark(bench.BenchmarkBase):
 
     def testiteragev2(self, args):
       return timeit.Timer(\
-        setup='import iterage.benchmark.iall',
-        stmt='iterage.benchmark.iall.iall_v2({iterable}, pred={pred})'.format(**args))
+        setup='import iterage.benchmarks.iall',
+        stmt='iterage.benchmarks.iall.iall_v2({iterable}, pred={pred})'.format(**args))
 
     def testiteragev3(self, args):
       return timeit.Timer(\
-        setup='import iterage.benchmark.iall',
-        stmt='iterage.benchmark.iall.iall_v2({iterable}, pred={pred})'.format(**args))
+        setup='import iterage.benchmarks.iall',
+        stmt='iterage.benchmarks.iall.iall_v2({iterable}, pred={pred})'.format(**args))
 
     def run(self):
       self.__base().run(args={'iterable': 'xrange(1, 8)', 'pred': 'bool'}, number=100000); self.pnt(); print('')

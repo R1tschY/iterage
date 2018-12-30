@@ -22,58 +22,55 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import itertools
 import timeit
 
-import iterage
-import iterage.benchmark as bench
+import benchmarks as bench
 
 
-def baselinerepeat(obj, times=None):
-  if times is None:
-    while True:
-      yield obj
-  else:
-    for _ in iterage.ntimes(times):
-      yield obj
+def takebaseline(i, n):
+  it = iter(i)
+  for _ in itertools.repeat(None, n):
+    yield next(it)
 
-class RepeatBenchmark(bench.BenchmarkBase):
+class TakeBenchmark(bench.BenchmarkBase):
     def __base(self):
-      return super(RepeatBenchmark, self)
+      return super(TakeBenchmark, self)
 
     def __init__(self):
       self.__base().__init__()
       self.register('baseline', self.baseline)
-      self.register('iterage', self.testiterage)
-      self.register('itertools', self.testitertools)
-      self.register('[e] * n', self.teststar)
+      self.register('baseline2', self.baseline2)
+      self.register('iterage', self.test1)
+      self.register('itertools', self.testbuildin)
 
     def baseline(self, args):
-      return timeit.Timer(\
-        setup='import iterage.benchmark.repeat',
-        stmt='list(iterage.benchmark.repeat.baselinerepeat({element}, {n}))'.format(**args))
+      return timeit.Timer(
+        setup='from iterage.benchmarks.take import takebaseline',
+        stmt='list(takebaseline({iterable}, {n}))'.format(**args))
 
-    def testiterage(self, args):
+    def baseline2(self, args):
+      return timeit.Timer(
+        setup='from iterage.benchmarks.take import takebaseline2',
+        stmt='list(takebaseline2({iterable}, {n}))'.format(**args))
+
+    def test1(self, args):
       return timeit.Timer(
         setup='import iterage',
-        stmt='list(iterage.repeat({element}, {n}))'.format(**args))
+        stmt='list(iterage.take({iterable}, {n}))'.format(**args))
 
-    def testitertools(self, args):
+    def testbuildin(self, args):
       return timeit.Timer(
         setup='import itertools',
-        stmt='list(itertools.repeat({element}, {n}))'.format(**args))
-
-    def teststar(self, args):
-      return timeit.Timer(
-        setup='pass',
-        stmt='list([{element}] * {n})'.format(**args))
+        stmt='list(itertools.islice({iterable}, {n}))'.format(**args))
 
     def run(self):
       self.__base().run(
-        args={'element': 42, 'n': 1000},
+        args={'iterable': 'xrange(1000)', 'n': 1000 - 1},
         number=100)
 
 
 if __name__ == "__main__":
-  benchmark = RepeatBenchmark()
+  benchmark = TakeBenchmark()
   benchmark.run()
   benchmark.pnt()
