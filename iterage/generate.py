@@ -25,9 +25,8 @@ import itertools
 # Generators
 # - generate iterables
 
-def count(start=0, step=1):
-  return itertools.count(start=start, step=step)
-
+count = itertools.count
+repeat = itertools.repeat
 
 def ntimes(n):
   """
@@ -39,11 +38,10 @@ def ntimes(n):
         func()
 
   """
-  return itertools.repeat(None, n)
-
-def repeat(e, n=None):
+  return repeat(None, n)
+  
+def empty():
   """
-  generate a iterable which returns n-times element n.
-  if n == None than e is repeated endless.
+  return an empty iterable.
   """
-  return itertools.repeat(e, n)
+  return ()

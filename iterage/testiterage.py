@@ -81,9 +81,11 @@ class IterageChunkTests(unittest.TestCase):
   def test_simpleUseCases(self):
     self.assertEqual(list(iterage.chunk(iterage.irange(9), 3)), [(0, 1, 2), (3, 4, 5), (6, 7, 8)])
     self.assertEqual(list(iterage.chunk(iterage.irange(3), 3)), [(0, 1, 2)])
+    self.assertEqual(list(iterage.chunk(iter([0, 1, 2]), 3)), [(0, 1, 2)])
 
   def test_emptyRange(self):
     self.assertEqual(list(iterage.chunk(iterage.irange(0), 3)), [])
+    self.assertEqual(list(iterage.chunk((), 3)), [])
 
   def test_unsuitableRange(self):
     self.assertEqual(list(iterage.chunk(iterage.irange(8), 3)), [(0, 1, 2), (3, 4, 5), (6, 7)])

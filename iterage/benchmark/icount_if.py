@@ -41,6 +41,9 @@ def icount_if_v2(iterable):
 def icount_if_v3(iterable):
   return iterage.reduce.icount(itertools.ifilter(bool, iterable))
 
+def icount_if_v4(iterable, sum=sum):
+  return sum(1 for x in iterable if x)
+
 class IEmptyBenchmark(bench.BenchmarkBase):
   def __init__(self):
     super(IEmptyBenchmark, self).__init__()
@@ -64,6 +67,11 @@ class IEmptyBenchmark(bench.BenchmarkBase):
       ("v3", (
         'import iterage.benchmark.icount_if',
         'iterage.benchmark.icount_if.icount_if_v3({iterable})'
+      )),
+
+      ("v4", (
+        'import iterage.benchmark.icount_if',
+        'iterage.benchmark.icount_if.icount_if_v4({iterable})'
       )),
     ])
 
