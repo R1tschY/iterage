@@ -6,8 +6,8 @@ python:
   - "3.7"
   - "pypy"
 
-# container based
-sudo: true
+sudo: required
+dist: xenial
 
 script:
     - python ./setup.py test
