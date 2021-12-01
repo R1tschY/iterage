@@ -1,11 +1,18 @@
 # -*- coding=utf-8 -*-
 
-import itertools
-import operator
-
 # Adaptors
 # - adapt a iterable
-def take(iterable, n):
+from collections import Sequence, deque
+from itertools import islice, cycle as icycle, groupby, zip_longest
+from operator import itemgetter
+
+from typing import Iterable, Iterator, TypeVar, Any, Callable, Optional
+
+T = TypeVar("T")
+U = TypeVar("U")
+
+
+def take(iterable: Iterable[T], n) -> Iterator[T]:
     """
     take only the first n elements of the iterable.
 
@@ -13,10 +20,21 @@ def take(iterable, n):
     [0, 1]
 
     """
-    return itertools.islice(iterable, n)
+    return islice(iterable, n)
 
 
-def drop(iterable, n):
+def take_last(iterable: Iterable[T], n: int) -> Iterator[T]:
+    """
+    take only the last n elements of the iterable.
+
+    >>> list(take_last(range(1000), 3))
+    [997, 998, 999]
+
+    """
+    return deque(iterable, maxlen=n)
+
+
+def drop(iterable: Iterable[T], n) -> Iterator[T]:
     """
     drop the first n elements of the iterable.
 
@@ -25,48 +43,48 @@ def drop(iterable, n):
 
     @see itertools.islice
     """
-    return itertools.islice(iterable, n, None)
+    return islice(iterable, n, None)
 
 
-def cycle(iterable):
-    """
-    Repeats iterable endless:
-
-    >>> list(take(cycle(range(2)), 5))
-    [0, 1, 0, 1, 0]
-
-    @note: function is saving content of iterable in the first run and returns in
-      second cycle the elements of the copy. So it uses significant auxiliary
-      storage (depending on the length of the iterable).
-
-    @see itertools.cycle
-    """
-    return itertools.cycle(iterable)
+def iterate(start: T, fn: Callable[[T], T]) -> T:
+    while 1:
+        start = fn(start)
+        yield start
 
 
-def unique(iterable, key=None):
+def uniq(
+        iterable: Iterable[T], key: Optional[Callable[[T], U]]=None
+) -> Iterator[T]:
     """
     List unique elements, preserving order. Remember only the element just seen.
 
-    >>> tuple(unique([1, 2, 2, 3]))
+    >>> tuple(uniq([1, 2, 2, 3]))
     (1, 2, 3)
-    >>> tuple(unique(sorted([5, 4, 3, 5, 3, 3])))
+    >>> tuple(uniq(sorted([5, 4, 3, 5, 3, 3])))
     (3, 4, 5)
 
     """
-    return map(
-        next,
-        map(operator.itemgetter(1), itertools.groupby(iterable, key)))
+    if key is None:
+        return map(itemgetter(0), groupby(iterable, key))
+    else:
+        return map(
+            next, map(itemgetter(1), groupby(iterable, key)))
 
 
-def unique_v2(iterable, key=None):
+def dedup(
+    iterable: Iterable[T], key: Optional[Callable[[T], U]]=None
+) -> Iterator[T]:
     """
-    List unique elements, preserving order. Remember only the element just seen.
+    List unique elements.
+
+    >>> tuple(dedup([5, 4, 3, 5, 3, 3]))
+    (3, 4, 5)
+
     """
-    return map(operator.itemgetter(0), itertools.groupby(iterable, key))
+    return uniq(sorted(iterable, key=key), key)
 
 
-def visit(iterable, func):
+def visit(iterable: Iterable[T], func: Callable[[T], Any]) -> Iterator[T]:
     """
     Visit every element in iterable, without editing the data.
     """
@@ -75,36 +93,33 @@ def visit(iterable, func):
         yield e
 
 
-def transform(iterable, func):
-    """
-    Transform data from C{iterable} through call to C{func}.
-
-    >>> tuple(transform([1, 2, 3], str))
-    ('1', '2', '3')
-
-    """
-    return map(func, iterable)
-
-
-def chunk(iterable, n):
+def chunk(iterable: Iterable[T], n: int) -> Iterator[Iterable[T]]:
     """
     Group data in fixed-length chunks.
 
     >>> tuple(chunk([1, 2, 3, 4, 5], 2))
+    ([1, 2], [3, 4], [5])
+    >>> tuple(chunk((x for x in range(1, 6)), 2))
     ((1, 2), (3, 4), (5,))
 
     """
-    islice = itertools.islice
-    ltuple = tuple
+    if isinstance(iterable, Sequence):
+        for i in range(0, len(iterable), n):
+            yield iterable[i:i + n]
+    else:
+        _islice = islice
+        _tuple = tuple
 
-    it = iter(iterable)
-    item = ltuple(islice(it, n))
-    while item:
-        yield item
-        item = ltuple(islice(it, n))
+        it = iter(iterable)
+        item = _tuple(_islice(it, n))
+        while item:
+            yield item
+            item = _tuple(_islice(it, n))
 
 
-def chunk_filled(iterable, n, fillvalue=None):
+def chunk_filled(
+        iterable: Iterable[T], n: int, fillvalue: Any=None
+) -> Iterator[Iterable[T]]:
     """
     Group data in fixed-length chunks and fill up chunks with C{fillvalue}.
 
@@ -116,10 +131,10 @@ def chunk_filled(iterable, n, fillvalue=None):
 
     """
     args = [iter(iterable)] * n
-    return itertools.zip_longest(fillvalue=fillvalue, *args)
+    return zip_longest(fillvalue=fillvalue, *args)
 
 
-def chunk_trunc(iterable, n):
+def chunk_trunc(iterable: Iterable[T], n: int) -> Iterator[Iterable[T]]:
     """
     Group data in full fixed-length chunks.
 

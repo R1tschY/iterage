@@ -25,5 +25,6 @@
 __version__ = "0.1.dev1"
 
 from .reduce import *
-from .generate import *
 from .iterate import *
+
+from .itr import itr
