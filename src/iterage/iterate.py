@@ -7,7 +7,10 @@ from collections.abc import Sequence
 from itertools import islice, cycle as icycle, groupby, zip_longest
 from operator import itemgetter
 
-from typing import Iterable, Iterator, TypeVar, Any, Callable, Optional
+from typing import Generator, Iterable, Iterator, TypeVar, Any, Callable, \
+    Optional
+
+from iterage._types import OrderedT
 
 T = TypeVar("T")
 U = TypeVar("U")
@@ -24,7 +27,7 @@ def take(iterable: Iterable[T], n) -> Iterator[T]:
     return islice(iterable, n)
 
 
-def take_last(iterable: Iterable[T], n: int) -> Iterator[T]:
+def take_last(iterable: Iterable[T], n: int) -> Iterable[T]:
     """
     take only the last n elements of the iterable.
 
@@ -47,7 +50,7 @@ def drop(iterable: Iterable[T], n) -> Iterator[T]:
     return islice(iterable, n, None)
 
 
-def iterate(start: T, fn: Callable[[T], T]) -> T:
+def iterate(start: T, fn: Callable[[T], T]) -> Iterator[T]:
     while 1:
         start = fn(start)
         yield start
@@ -69,7 +72,7 @@ def uniq(iterable: Iterable[T], key: Optional[Callable[[T], U]] = None) -> Itera
         return map(next, map(itemgetter(1), groupby(iterable, key)))
 
 
-def dedup(iterable: Iterable[T], key: Optional[Callable[[T], U]] = None) -> Iterator[T]:
+def dedup(iterable: Iterable[T], key: Optional[Callable[[T], OrderedT]] = None) -> Iterator[T]:
     """
     List unique elements.
 

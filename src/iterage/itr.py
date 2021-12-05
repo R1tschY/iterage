@@ -5,37 +5,21 @@ import collections.abc
 from collections import deque
 from functools import reduce
 from itertools import *
-from typing import (
-    Any,
-    Callable,
-    Iterable,
-    Iterator,
-    Optional,
-    Tuple,
-    TypeVar,
-    Sequence,
-    Dict,
-    List,
-    Counter,
-)
+from typing import (Any, Callable, Counter, Dict, Iterable, Iterator, List,
+                    NewType, Optional, Sequence, Tuple, TypeVar,
+                    Union)
 
-from src.iterage import (
-    all_equal,
-    chunk,
-    chunk_filled,
-    chunk_trunc,
-    dedup,
-    find_first,
-    ilen,
-    single,
-    uniq,
-    to_optional,
-)
+from iterage import (all_equal, chunk, chunk_filled, chunk_trunc, dedup,
+                     find_first, ilen, single, to_optional, uniq)
 
 __all__ = ("itr", "Itr")
 
+from iterage._types import OrderedT
+
 T = TypeVar("T")
 U = TypeVar("U")
+
+_KeyFn = NewType("KeyFn", Optional[Callable[[T], OrderedT]])
 
 _nothing = object()
 _sentinal = object()
@@ -86,10 +70,14 @@ class Itr(Iterable[T]):
 
     """
 
-    _itr = ...  # type: Iterable[T]
+    _itr: Iterable[T]
 
-    def __init__(self, itr):
-        self._itr = itr
+    def __init__(self, iterable: Iterable[T]):
+        self._itr = iterable
+
+    @classmethod
+    def _new(cls, iterable: Iterable[U]) -> "Itr[U]":
+        return cls(iterable)
 
     # generators
 
@@ -102,7 +90,7 @@ class Itr(Iterable[T]):
         'AAA'
 
         """
-        return cls(repeat(v, n))
+        return cls._new(repeat(v, n))
 
     @classmethod
     def ntimes(cls, n: int) -> "Itr[None]":
@@ -117,7 +105,7 @@ class Itr(Iterable[T]):
 
         :see: Itr.ntimes
         """
-        return cls(repeat(None, n))
+        return cls._new(repeat(None, n))  # type: ignore
 
     @classmethod
     def empty(cls) -> "Itr[T]":
@@ -128,7 +116,7 @@ class Itr(Iterable[T]):
         []
 
         """
-        return cls(())
+        return cls._new(())
 
     @classmethod
     def from_optional(cls, v: Optional[T]) -> "Itr[T]":
@@ -139,7 +127,7 @@ class Itr(Iterable[T]):
         >>> Itr.from_optional(4).map(lambda x: x / 2).to_optional()
         2.0
         """
-        return cls.empty() if v is None else cls((v,))
+        return cls.empty() if v is None else cls._new((v,))
 
     # selecting
 
@@ -156,7 +144,7 @@ class Itr(Iterable[T]):
 
         :see: Itr.drop, Itr.take_while
         """
-        return self.__class__(islice(self._itr, n))
+        return self._new(islice(self._itr, n))
 
     def take_while(self, pred):
         """
@@ -167,7 +155,7 @@ class Itr(Iterable[T]):
 
         :see: Itr.drop_while, Itr.take
         """
-        return self.__class__(takewhile(pred, self._itr))
+        return self._new(takewhile(pred, self._itr))
 
     def take_last(self, n: int) -> "Itr[T]":
         """
@@ -179,7 +167,7 @@ class Itr(Iterable[T]):
         [0, 1]
 
         """
-        return self.__class__(deque(self._itr, maxlen=n))
+        return self._new(deque(self._itr, maxlen=n))
 
     def drop(self, n: int) -> "Itr[T]":
         """
@@ -191,7 +179,7 @@ class Itr(Iterable[T]):
         []
 
         """
-        return self.__class__(islice(self._itr, n, None))
+        return self._new(islice(self._itr, n, None))
 
     def drop_while(self, pred):
         """
@@ -202,7 +190,7 @@ class Itr(Iterable[T]):
 
         :see: Itr.take_while, Itr.drop
         """
-        return self.__class__(dropwhile(pred, self._itr))
+        return self._new(dropwhile(pred, self._itr))
 
     def slice(self, *args):
         """
@@ -220,7 +208,7 @@ class Itr(Iterable[T]):
         [0, 1, 2, 3]
 
         """
-        return self.__class__(islice(self._itr, *args))
+        return self._new(islice(self._itr, *args))
 
     def where(self, fn: Callable[[T], U]) -> "Itr[T]":
         """
@@ -230,81 +218,83 @@ class Itr(Iterable[T]):
         [0, 2]
 
         """
-        return self.__class__(filter(fn, self._itr))
+        return self._new(filter(fn, self._itr))
 
     def where_not(self, fn: Callable[[T], U]) -> "Itr[T]":
-        return self.__class__(filterfalse(fn, self._itr))
+        return self._new(filterfalse(fn, self._itr))
 
     def drop_elements(self, t: T) -> "Itr[T]":
-        return self.__class__(e for e in self._itr if e == t)
+        return self._new(e for e in self._itr if e == t)
 
     def drop_na(self) -> "Itr[T]":
-        return self.__class__(e for e in self._itr if e is not None)
+        return self._new(e for e in self._itr if e is not None)
 
     # ordering
 
-    def sort(self, key: Optional[Callable[[T], U]] = None) -> "Itr[T]":
+    def sort(
+            self,
+            key: Optional[Callable[[T], OrderedT]] = None) -> "Itr[T]":
         if key is None:
-            return self.__class__(sorted(self._itr))
+            return self._new(sorted(self._itr))
         else:
-            return self.__class__(sorted(self._itr, key=key))
+            return self._new(sorted(self._itr, key=key))
 
     def reverse(self) -> "Itr[T]":
         try:
-            return self.__class__(reversed(self._itr))
+            return self._new(reversed(self._itr))  # type: ignore
         except TypeError:
-            return self.__class__(reversed(list(self._itr)))
+            return self._new(reversed(list(self._itr)))
 
     # unique
 
-    def uniq(self, key: Optional[Callable[[T], U]] = None) -> "Itr[T]":
-        return self.__class__(uniq(self._itr, key))
+    def uniq(self, key: _KeyFn = None) -> "Itr[T]":
+        return self._new(uniq(self._itr, key))
 
-    def dedup(self, key: Optional[Callable[[T], U]] = None) -> "Itr[T]":
-        return self.__class__(dedup(self._itr, key))
+    def dedup(self, key: _KeyFn = None) -> "Itr[T]":
+        return self._new(dedup(self._itr, key))
 
     # mapping
 
     def map(self, fn: Callable[[T], U]) -> "Itr[U]":
-        return self.__class__(map(fn, self._itr))
+        return self._new(map(fn, self._itr))
 
     def star_map(self, fn: Callable[..., U]) -> "Itr[U]":
-        return self.__class__(starmap(fn, self._itr))
+        return self._new(starmap(fn, self._itr))
 
     def flat_map(self, fn: Callable[[T], Iterable[U]]) -> "Itr[U]":
-        return self.__class__(chain.from_iterable(map(fn, self._itr)))
+        return self._new(chain.from_iterable(map(fn, self._itr)))
 
     def flatten(self) -> "Itr":
-        return self.__class__(chain.from_iterable(self._itr))
+        return self._new(chain.from_iterable(self._itr))
 
     def chunk(self, n: int) -> "Itr[Sequence[T]]":
-        return self.__class__(chunk(self._itr, n))
+        return self._new(chunk(self._itr, n))
 
     def chunk_filled(self, n: int, fillvalue: Any = None) -> "Itr[Sequence[T]]":
-        return self.__class__(chunk_filled(self._itr, n, fillvalue))
+        return self._new(chunk_filled(self._itr, n, fillvalue))
 
     def chunk_trunc(self, n: int) -> "Itr[Sequence[T]]":
-        return self.__class__(chunk_trunc(self._itr, n))
+        return self._new(chunk_trunc(self._itr, n))
 
     def zip(self, other: Iterable[U]) -> "Itr[Tuple[T, U]]":
-        return self.__class__(zip(self._itr, other))
+        return self._new(zip(self._itr, other))
 
     def zip_longest(
-        self, other: Iterable[U], fillvalue: Any = None
+            self, other: Iterable[U], fillvalue: Any = None
     ) -> "Itr[Tuple[T, U]]":
-        return self.__class__(zip_longest(self._itr, other, fillvalue))
+        return self._new(zip_longest(self._itr, other, fillvalue=fillvalue))
 
     def enumerate(self, start=0) -> "Itr[Tuple[int, T]]":
-        return self.__class__(enumerate(self._itr, start))
+        return self._new(enumerate(self._itr, start))
 
     def sliding(self, length):
-        return self.__class__(sliding(self._itr, length))
+        return self._new(sliding(self._itr, length))
 
     def accumulate(self):
-        return self.__class__(accumulate(self._itr))
+        return self._new(accumulate(self._itr))
 
     def group_by(self, key: Callable[[T], U]) -> Dict[U, List[T]]:
-        result = {}
+        result: Dict[U, List[T]] = {}
         for item in self._itr:
             k = key(item)
             if k in result:
@@ -316,27 +306,27 @@ class Itr(Iterable[T]):
     # composing
 
     def prelude(self, prelude: Iterable[T]) -> Iterable[T]:
-        return self.__class__(chain(prelude, self._itr))
+        return self._new(chain(prelude, self._itr))
 
     def postlude(self, postlude: Iterable[T]) -> Iterable[T]:
-        return self.__class__(chain(self._itr, postlude))
+        return self._new(chain(self._itr, postlude))
 
     def cycle(self):
-        return self.__class__(cycle(self._itr))
+        return self._new(cycle(self._itr))
 
     # combinatoric
 
     def product(self, repeat):
-        return self.__class__(product(self._itr, repeat))
+        return self._new(product(self._itr, repeat))
 
     def permutations(self, r=None):
-        return self.__class__(permutations(self._itr, r))
+        return self._new(permutations(self._itr, r))
 
     def combinations(self, r):
-        return self.__class__(combinations(self._itr, r))
+        return self._new(combinations(self._itr, r))
 
     def combinations_with_replacement(self, r):
-        return self.__class__(combinations_with_replacement(self._itr, r))
+        return self._new(combinations_with_replacement(self._itr, r))
 
     # reduce
 
@@ -408,7 +398,7 @@ class Itr(Iterable[T]):
     def all_equal(self) -> bool:
         return all_equal(self._itr)
 
-    def first(self, default: T = None) -> T:
+    def first(self, default: U = None) -> Union[T, U]:
         return next(iter(self._itr), default)
 
     def single(self) -> T:

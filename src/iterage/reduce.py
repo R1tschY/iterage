@@ -22,13 +22,11 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Any, Callable, Iterable, Sized
 from collections import deque
-from functools import singledispatch
+from itertools import count, filterfalse, groupby, islice
+from typing import Any, Callable, Iterable
 
-from itertools import islice, count, groupby, filterfalse
-
-# a sentinal - do not use as value in any iterable
+# sentinels - do not use as value in any iterable
 
 _SENTINEL = object()
 _NOTHING = object()
@@ -74,7 +72,7 @@ def ilen(iterable: Iterable):
 
     """
     try:
-        return len(iterable)
+        return len(iterable)  # type: ignore
     except TypeError:
         pass
 

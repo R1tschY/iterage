@@ -1,11 +1,8 @@
 # -*- coding=utf-8 -*-
-import base64
-import uuid
-from collections import Callable
 import operator
+from collections import Callable
 from functools import reduce
-
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 def const(c):
@@ -61,8 +58,8 @@ class ExprFn:
 
         return ExprFn(result_fn)
 
-    def __eq__(self, other) -> "ExprFn":
-        return self._binop_helper(self, other, operator.eq)
+    # TODO: def __eq__(self, other) -> "ExprFn":
+    # TODO:    return self._binop_helper(self, other, operator.eq)
 
     def __add__(self, other) -> "ExprFn":
         return self._binop_helper(self, other, operator.add)

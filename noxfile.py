@@ -78,7 +78,7 @@ def lint(session):
 
 @nox.session(python=[default_python_version])
 def typecheck(session):
-    args = session.posargs or locations
+    args = session.posargs or ["src"]
     session.install("mypy")
     session.run("mypy", *args)
 
