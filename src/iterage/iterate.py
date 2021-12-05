@@ -52,9 +52,7 @@ def iterate(start: T, fn: Callable[[T], T]) -> T:
         yield start
 
 
-def uniq(
-        iterable: Iterable[T], key: Optional[Callable[[T], U]]=None
-) -> Iterator[T]:
+def uniq(iterable: Iterable[T], key: Optional[Callable[[T], U]] = None) -> Iterator[T]:
     """
     List unique elements, preserving order. Remember only the element just seen.
 
@@ -67,13 +65,10 @@ def uniq(
     if key is None:
         return map(itemgetter(0), groupby(iterable, key))
     else:
-        return map(
-            next, map(itemgetter(1), groupby(iterable, key)))
+        return map(next, map(itemgetter(1), groupby(iterable, key)))
 
 
-def dedup(
-    iterable: Iterable[T], key: Optional[Callable[[T], U]]=None
-) -> Iterator[T]:
+def dedup(iterable: Iterable[T], key: Optional[Callable[[T], U]] = None) -> Iterator[T]:
     """
     List unique elements.
 
@@ -105,7 +100,7 @@ def chunk(iterable: Iterable[T], n: int) -> Iterator[Iterable[T]]:
     """
     if isinstance(iterable, Sequence):
         for i in range(0, len(iterable), n):
-            yield iterable[i:i + n]
+            yield iterable[i : i + n]
     else:
         _islice = islice
         _tuple = tuple
@@ -118,7 +113,7 @@ def chunk(iterable: Iterable[T], n: int) -> Iterator[Iterable[T]]:
 
 
 def chunk_filled(
-        iterable: Iterable[T], n: int, fillvalue: Any=None
+    iterable: Iterable[T], n: int, fillvalue: Any = None
 ) -> Iterator[Iterable[T]]:
     """
     Group data in fixed-length chunks and fill up chunks with C{fillvalue}.

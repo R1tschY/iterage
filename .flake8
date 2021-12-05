@@ -1,0 +1,7 @@
+[flake8]
+select = B,B9,BLK,C,E,F,I,S,W,D,DAR
+max-complexity = 10
+ignore = E203,E501,W503
+max-line-length = 80
+application-import-names = iterage,tests
+per-file-ignores = tests/*:S101

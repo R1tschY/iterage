@@ -22,7 +22,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from typing import Sized
+from typing import Any, Callable, Iterable, Sized
 from collections import deque
 from functools import singledispatch
 
@@ -65,8 +65,7 @@ def foreach(function, *iterables):
     consume(map(function, *iterables))
 
 
-@singledispatch
-def ilen(iterable):
+def ilen(iterable: Iterable):
     """
     copyied from zuo: http://stackoverflow.com/a/15112059/1188453
 
@@ -74,17 +73,15 @@ def ilen(iterable):
     3
 
     """
-    counter = count()
-    deque(zip(iterable, counter), maxlen=0)
-    return next(counter)
+    try:
+        return len(iterable)
+    except TypeError:
+        counter = count()
+        deque(zip(iterable, counter), maxlen=0)
+        return next(counter)
 
 
-@ilen.register(Sized)
-def _ilen(iterable):
-    return len(iterable)
-
-
-def icount_if(iterable, pred=bool):
+def icount_if(iterable, pred=Callable[[Any], bool]):
     """
     Count how many times the predicate is true.
 

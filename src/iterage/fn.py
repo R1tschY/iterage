@@ -11,6 +11,7 @@ from typing import Any, Dict, Optional
 def const(c):
     def fn(*_args):
         return c
+
     return fn
 
 
@@ -50,8 +51,7 @@ class ExprFn:
 
     def __call__(self, *args) -> "ExprFn":
         argfns = [
-            arg._exprfn_ if isinstance(arg, ExprFn) else const(arg)
-            for arg in args
+            arg._exprfn_ if isinstance(arg, ExprFn) else const(arg) for arg in args
         ]
 
         fn = self._exprfn_
@@ -158,9 +158,12 @@ class ExprFn1(ExprFn):
             ofn = b._exprfn_
 
             if a is _ and b is _:
+
                 def result_fn(x):
                     return op(x, x)
+
             else:
+
                 def result_fn(x):
                     return op(fn(x), ofn(x))
 
@@ -171,7 +174,9 @@ class ExprFn1(ExprFn):
                 # TODO: partial?
                 def result_fn(x):
                     return op(x, b)
+
             else:
+
                 def result_fn(x):
                     return op(fn(x), b)
 
@@ -182,9 +187,12 @@ class ExprFn1(ExprFn):
                 # TODO: partial?
                 def result_fn(x):
                     return op(a, x)
+
             else:
+
                 def result_fn(x):
                     return op(a, fn(x))
+
         else:
             assert False
 
@@ -192,7 +200,6 @@ class ExprFn1(ExprFn):
 
 
 class ExprFn2(ExprFn):
-
     @classmethod
     def _binop_helper(cls, a, b, op) -> "ExprFn2":
         if a is _1 and b is _2:
@@ -216,7 +223,8 @@ def isin(item, container):
         if cls is not None:
             raise ValueError(
                 f"Missmatching expr classes: "
-                f"{cls.__name__} != {container.__class__.__name__}")
+                f"{cls.__name__} != {container.__class__.__name__}"
+            )
 
         cls = container.__class__
     else:
@@ -227,6 +235,7 @@ def isin(item, container):
 
     def result_fn(*args):
         return itemfn(*args) in containerfn(*args)
+
     return cls(result_fn)
 
 
@@ -251,7 +260,6 @@ def _1(_1, _2):
 @ExprFn2
 def _2(_1, _2):
     return _2
-
 
 
 def test_args():

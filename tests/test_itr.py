@@ -6,7 +6,6 @@ from itr import itr
 
 
 class ItrTests(unittest.TestCase):
-
     def test_iter(self):
         self.assertEqual(list(itr([1, 2])), [1, 2])
         self.assertEqual([i for i in itr([1, 2])], [1, 2])

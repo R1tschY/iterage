@@ -2,14 +2,35 @@
 
 import collections
 import collections.abc
-from collections import deque, Collection
-from functools import reduce, singledispatch
+from collections import deque
+from functools import reduce
 from itertools import *
-from typing import Any, Callable, Generic, Iterable, Iterator, Optional, Tuple, \
-    TypeVar, Union, ClassVar, Sequence, Sized, Dict, List, Counter
+from typing import (
+    Any,
+    Callable,
+    Iterable,
+    Iterator,
+    Optional,
+    Tuple,
+    TypeVar,
+    Sequence,
+    Dict,
+    List,
+    Counter,
+)
 
-from iterage import all_equal, chunk, chunk_filled, chunk_trunc, dedup, \
-    find_first, ilen, single, uniq, to_optional
+from src.iterage import (
+    all_equal,
+    chunk,
+    chunk_filled,
+    chunk_trunc,
+    dedup,
+    find_first,
+    ilen,
+    single,
+    uniq,
+    to_optional,
+)
 
 __all__ = ("itr", "Itr")
 
@@ -236,10 +257,10 @@ class Itr(Iterable[T]):
 
     # unique
 
-    def uniq(self, key: Optional[Callable[[T], U]]=None) -> "Itr[T]":
+    def uniq(self, key: Optional[Callable[[T], U]] = None) -> "Itr[T]":
         return self.__class__(uniq(self._itr, key))
 
-    def dedup(self, key: Optional[Callable[[T], U]]=None) -> "Itr[T]":
+    def dedup(self, key: Optional[Callable[[T], U]] = None) -> "Itr[T]":
         return self.__class__(dedup(self._itr, key))
 
     # mapping
@@ -259,20 +280,17 @@ class Itr(Iterable[T]):
     def chunk(self, n: int) -> "Itr[Sequence[T]]":
         return self.__class__(chunk(self._itr, n))
 
-    def chunk_filled(
-            self, n: int, fillvalue: Any=None) -> "Itr[Sequence[T]]":
+    def chunk_filled(self, n: int, fillvalue: Any = None) -> "Itr[Sequence[T]]":
         return self.__class__(chunk_filled(self._itr, n, fillvalue))
 
     def chunk_trunc(self, n: int) -> "Itr[Sequence[T]]":
         return self.__class__(chunk_trunc(self._itr, n))
 
-    def zip(
-            self, other: Iterable[U]
-    ) -> "Itr[Tuple[T, U]]":
+    def zip(self, other: Iterable[U]) -> "Itr[Tuple[T, U]]":
         return self.__class__(zip(self._itr, other))
 
     def zip_longest(
-            self, other: Iterable[U], fillvalue: Any=None
+        self, other: Iterable[U], fillvalue: Any = None
     ) -> "Itr[Tuple[T, U]]":
         return self.__class__(zip_longest(self._itr, other, fillvalue))
 
