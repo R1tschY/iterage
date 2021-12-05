@@ -23,22 +23,22 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
-importlib-metadata = {version = "^4.8.2", python = "<3.8"}
+importlib-metadata = { version = ">=1.4", python = "<3.8" }
 
 [tool.poetry.dev-dependencies]
 pytest = "^6.2.5"
-black = "*"
-mypy = "*"
-flake8 = "*"
-flake8-black = "*"
-flake8-import-order = "*"
-flake8-bugbear = "*"
-flake8-bandit = "*"
-flake8-docstrings = "*"
-darglint = "*"
-xdoctest = "*"
-sphinx = "*"
-sphinx-autodoc-typehints = "*"
+black = "^21.11b1"
+mypy = "^0.910"
+flake8 = "^4.0.1"
+flake8-black = "^0.2.3"
+flake8-import-order = "^0.18.1"
+flake8-bugbear = "^21.11.29"
+flake8-bandit = "^2.1.2"
+flake8-docstrings = "^1.6.0"
+darglint = "^1.8.1"
+xdoctest = "^0.15.10"
+sphinx = "^4.3.1"
+sphinx-autodoc-typehints = "^1.12.0"
 coverage = { extras = ["toml"], version = "^6.2" }
 pytest-cov = "^3.0.0"
 
