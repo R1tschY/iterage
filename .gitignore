@@ -51,6 +51,3 @@ lib64/
 
 # Nox
 .nox
-
-# Poetry
-poetry.lock
