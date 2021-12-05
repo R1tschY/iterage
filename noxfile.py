@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import nox
 from nox_poetry import Session, session
 
@@ -21,6 +23,19 @@ def test(session: Session) -> None:
     finally:
         if session.interactive:
             session.notify("coverage", posargs=[])
+
+
+@session(python=default_python_version)
+def coverage(session: Session) -> None:
+    """Produce the coverage report."""
+    args = session.posargs or ["report"]
+
+    session.install("coverage[toml]")
+
+    if not session.posargs and any(Path().glob(".coverage.*")):
+        session.run("coverage", "combine")
+
+    session.run("coverage", *args)
 
 
 @nox.session(python=python_versions)

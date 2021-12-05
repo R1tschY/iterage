@@ -2,7 +2,8 @@
 
 # Adaptors
 # - adapt a iterable
-from collections import Sequence, deque
+from collections import deque
+from collections.abc import Sequence
 from itertools import islice, cycle as icycle, groupby, zip_longest
 from operator import itemgetter
 

@@ -23,8 +23,9 @@
 # SOFTWARE.
 
 import unittest
+from typing import Iterable, List, Tuple
 
-from src import iterage
+import iterage
 
 
 def createNGenerator(n):
@@ -73,31 +74,42 @@ class IterageTakeTests(unittest.TestCase):
 class IterageCycleTests(unittest.TestCase):
     def test_simpleUseCases(self):
         self.assertEqual(
-            list(iterage.take(iterage.cycle(range(2)), 6)), [0, 1, 0, 1, 0, 1]
+            list(iterage.take(iterage.icycle(range(2)), 6)), [0, 1, 0, 1, 0, 1]
         )
         self.assertEqual(
-            list(iterage.take(iterage.cycle([0, 1]), 6)), [0, 1, 0, 1, 0, 1]
+            list(iterage.take(iterage.icycle([0, 1]), 6)), [0, 1, 0, 1, 0, 1]
         )
         self.assertEqual(
-            list(iterage.take(iterage.cycle(createNGenerator(2)), 6)),
+            list(iterage.take(iterage.icycle(createNGenerator(2)), 6)),
             [0, 1, 0, 1, 0, 1],
         )
 
 
+def _to_2d_list(iterable: Iterable[Iterable[int]]) -> List[List[int]]:
+    return list(map(list, iterable))
+
+
 class IterageChunkTests(unittest.TestCase):
+
     def test_simpleUseCases(self):
         self.assertEqual(
-            list(iterage.chunk(range(9), 3)), [(0, 1, 2), (3, 4, 5), (6, 7, 8)]
+            _to_2d_list(iterage.chunk(range(9), 3)),
+            [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
         )
-        self.assertEqual(list(iterage.chunk(range(3), 3)), [(0, 1, 2)])
-        self.assertEqual(list(iterage.chunk(iter([0, 1, 2]), 3)), [(0, 1, 2)])
+        self.assertEqual(
+            _to_2d_list(iterage.chunk(range(3), 3)), [[0, 1, 2]])
+        self.assertEqual(
+            _to_2d_list(iterage.chunk(iter([0, 1, 2]), 3)), [[0, 1, 2]])
 
     def test_emptyRange(self):
-        self.assertEqual(list(iterage.chunk(range(0), 3)), [])
-        self.assertEqual(list(iterage.chunk((), 3)), [])
+        self.assertEqual(_to_2d_list(iterage.chunk(range(0), 3)), [])
+        self.assertEqual(_to_2d_list(iterage.chunk((), 3)), [])
 
     def test_unsuitableRange(self):
         self.assertEqual(
-            list(iterage.chunk(range(8), 3)), [(0, 1, 2), (3, 4, 5), (6, 7)]
+            _to_2d_list(iterage.chunk(range(8), 3)),
+            [[0, 1, 2], [3, 4, 5], [6, 7]]
         )
-        self.assertEqual(list(iterage.chunk(range(1), 3)), [(0,)])
+        self.assertEqual(
+            _to_2d_list(iterage.chunk(range(1), 3)),
+            [[0]])

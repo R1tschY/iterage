@@ -2,7 +2,7 @@
 
 import unittest
 
-from itr import itr
+from iterage.itr import itr
 
 
 class ItrTests(unittest.TestCase):
