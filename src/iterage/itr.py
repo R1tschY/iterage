@@ -215,7 +215,7 @@ class Itr(Iterable[T]):
         >>> itr(range(4)).slice(1).to_list()
         [0]
         >>> itr(range(4)).slice(None, 2).to_list()
-        [1, 2]
+        [0, 1]
         >>> itr(range(4)).slice(None, None).to_list()
         [0, 1, 2, 3]
 
@@ -368,7 +368,7 @@ class Itr(Iterable[T]):
         >>> itr(range(0)).to_optional()
         >>> itr(range(2)).to_optional()
         Traceback (most recent call last):
-        LookupError
+        ValueError: more than one element
         """
         return to_optional(self._itr)
 

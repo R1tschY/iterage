@@ -47,7 +47,7 @@ def consume(iterator, n=None):
     (3,)
 
     >>> list = []
-    >>> consume(visit([1, 2, 3], lambda x: list.append("/" + str(x))))
+    >>> consume(map(lambda x: list.append("/" + str(x)), [1, 2, 3]))
     >>> list
     ['/1', '/2', '/3']
 
@@ -76,12 +76,14 @@ def ilen(iterable: Iterable):
     try:
         return len(iterable)
     except TypeError:
-        counter = count()
-        deque(zip(iterable, counter), maxlen=0)
-        return next(counter)
+        pass
+
+    counter = count()
+    deque(zip(iterable, counter), maxlen=0)
+    return next(counter)
 
 
-def icount_if(iterable, pred=Callable[[Any], bool]):
+def icount_if(iterable, pred: Callable[[Any], bool] = bool):
     """
     Count how many times the predicate is true.
 
@@ -190,22 +192,22 @@ def single(iterable):
     2
     >>> single((x for x in [1, 2, 3] if x % 2 == 1))
     Traceback (most recent call last):
-    ValueError
+    ValueError: more than one element
     >>> single(x for x in [1, 2, 3] if x > 42)
     Traceback (most recent call last):
-    ValueError
+    ValueError: empty iterator
 
     """
     iterator = iter(iterable)
     item = next(iterator, _SENTINEL)
     if item is _SENTINEL:
-        raise LookupError("empty iterator")
+        raise ValueError("empty iterator")
 
     n = next(iterator, _SENTINEL)
     if n is _SENTINEL:
         return item
     else:
-        raise LookupError("more than one element")
+        raise ValueError("more than one element")
 
 
 def to_optional(iterable):
@@ -217,8 +219,9 @@ def to_optional(iterable):
     2
     >>> to_optional((x for x in [1, 2, 3] if x % 2 == 1))
     Traceback (most recent call last):
-    ValueError
-    >>> to_optional(x for x in [1, 2, 3] if x > 42)
+    ValueError: more than one element
+    >>> to_optional(x for x in [1, 2, 3] if x > 42) is None
+    True
 
     """
     iterator = iter(iterable)

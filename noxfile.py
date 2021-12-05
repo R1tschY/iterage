@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import nox
@@ -41,9 +42,16 @@ def coverage(session: Session) -> None:
 @nox.session(python=python_versions)
 def doctest(session: Session) -> None:
     """Run examples with xdoctest."""
-    args = session.posargs or ["all"]
-    session.install("xdoctest")
-    session.run("python", "-m", "xdoctest", package, *args)
+    if session.posargs:
+        args = [package, *session.posargs]
+    else:
+        args = [f"--modname={package}", "--command=all"]
+        if "FORCE_COLOR" in os.environ:
+            args.append("--colored=1")
+
+    session.install(".")
+    session.install("xdoctest[colors]")
+    session.run("python", "-m", "xdoctest", *args)
 
 
 @nox.session(python=[default_python_version])
@@ -71,7 +79,7 @@ def lint(session):
 @nox.session(python=[default_python_version])
 def typecheck(session):
     args = session.posargs or locations
-    session.install(session, "mypy")
+    session.install("mypy")
     session.run("mypy", *args)
 
 
