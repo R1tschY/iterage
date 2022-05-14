@@ -8,7 +8,7 @@ from nox_poetry import Session, session
 package = "iterage"
 locations = "src", "tests", "noxfile.py"
 
-default_python_version = "3.9"
+default_python_version = "3.10"
 python_versions = ["3.10", "3.9", "3.8", "3.7"]
 
 nox.needs_version = ">= 2021.6.6"

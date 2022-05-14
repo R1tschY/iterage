@@ -6,7 +6,7 @@ on:
 
 jobs:
   tests:
-    name: Python ${{ matrix.python }}
+    name: ${{ matrix.session }} CPython/${{ matrix.python }} ${{ matrix.os }}
 
     strategy:
       fail-fast: false
@@ -61,4 +61,5 @@ jobs:
           pipx inject --pip-args=--constraint=.github/workflows/constraints.txt nox nox-poetry
           nox --version
 
-      - run: nox --python=${{ matrix.python }}
+      - name: Run Nox session ${{ matrix.session }}
+        run: nox --python=${{ matrix.python }}
